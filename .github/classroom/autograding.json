@@ -1,0 +1,14 @@
+{
+  "tests": [
+    {
+      "name": "Test suite",
+      "setup": "",
+      "run": "cmake -S ./ -B ./cmake-build-debug && cmake --build ./cmake-build-debug --target testing && ./cmake-build-debug/testing",
+      "input": "",
+      "output": "",
+      "comparison": "included",
+      "timeout": 2,
+      "points": null
+    }
+  ]
+}

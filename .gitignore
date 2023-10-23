@@ -1,0 +1,8 @@
+*.exe
+*.ghc
+*.o
+out
+.vs
+.idea
+cmake-build-debug
+.src
