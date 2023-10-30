@@ -1,14 +1,12 @@
 #include "LinkedList.cpp"
 
-#include <limits.h>
-
 template <typename T>
 LinkedList<T>::LinkedList()
-    : head(nullptr), m_size(0){};
+    : head(nullptr), tail(nullptr), m_size(0){};
 
 template <typename T>
 LinkedList<T>::LinkedList(const LinkedList<T> &rhs)
-    : head(nullptr), m_size(rhs.m_size)
+    : head(nullptr), tail(nullptr), m_size(rhs.m_size)
 {
     if (rhs.head == nullptr)
         return;
@@ -21,11 +19,15 @@ LinkedList<T>::LinkedList(const LinkedList<T> &rhs)
         current->next = new Node<T>(other->key);
         current = current->next;
         other = other->next;
+        if (!other->next)
+            tail = current;
     }
 };
 
 template <typename T>
-LinkedList<T>::LinkedList(std::initializer_list<T> list) {}
+LinkedList<T>::LinkedList(std::initializer_list<T> list)
+{
+}
 
 template <typename T>
 LinkedList<T>::~LinkedList()
@@ -39,7 +41,7 @@ bool LinkedList<T>::operator==(const LinkedList<T> &rhs) const
     if (m_size != rhs.m_size)
         return false;
 
-    Node<T> *current = this->head, *other = rhs.head;
+    Ptr current = this->head, *other = rhs.head;
     while (current->next)
     {
         if (current->key != other->key)
@@ -68,6 +70,8 @@ LinkedList<T> &LinkedList<T>::operator=(const LinkedList<T> &rhs)
             current->next = new Node<T>(other->key);
             current = current->next;
             other = other->next;
+            if (!other->next)
+                head = other;
         }
     }
     return *this;
@@ -76,16 +80,20 @@ LinkedList<T> &LinkedList<T>::operator=(const LinkedList<T> &rhs)
 template <typename T>
 void LinkedList<T>::push(const T &a)
 {
-    Node<T> *new_node = new Node<T>(a);
+    Ptr new_node = new Node<T>(a);
     std::size_t index = 0;
     if (!head)
+    {
         head = new_node;
+        tail = new_node;
+    }
     else
     {
-        Node<T> *current = head;
+        Ptr current = head;
         while (current->next)
             current = current->next;
         current->next = new_node;
+        tail = new_node;
     }
     m_size++;
 }
@@ -95,26 +103,58 @@ void LinkedList<T>::push_at(const T &a, std::size_t index)
 {
     if (index > this->m_size) // Too large index
         throw std::out_of_range("LL::Out of range.\n");
+    if (index == m_size - 1)
+        push(a);
     if (index == 0)
     { // index is 0
-        Node<T> *temp = new Node<T>(a);
+        Ptr temp = new Node<T>(a);
         temp->next = head;
         head = temp;
         m_size++;
         return;
     }
 
-    Node<T> *begin = head;
+    Ptr begin = head;
     while (index > 1)
     {
         begin = begin->next;
         index--;
     }
-    Node<T> *temp = begin->next;
+    Ptr temp = begin->next;
     begin->next = new Node<T>(a);
     begin = begin->next;
     begin->next = temp;
+    tail = temp;
     m_size++;
+}
+
+template <typename T>
+void LinkedList<T>::pop_front()
+{
+    if (head == tail)
+        pop_back();
+    Ptr begin = head;
+    while (begin->next != tail)
+        begin = begin->next;
+    delete tail;
+    tail = begin;
+    tail->next = nullptr;
+}
+
+template <typename T>
+void LinkedList<T>::pop_back()
+{
+    if (head == tail)
+    {
+        delete head;
+        tail = nullptr;
+        head = nullptr;
+        return;
+    }
+    Ptr temp = head;
+    head = head->next;
+    delete temp;
+    m_size--;
 }
 
 template <typename T>
@@ -125,21 +165,17 @@ void LinkedList<T>::erase(std::size_t pos)
         throw std::out_of_range("LL::Out of range.\n");
 
     if (pos == 0)
-    {
-        Node<T> *temp = head;
-        head = head->next;
-        delete temp;
-        m_size--;
-        return;
-    }
+        pop_back();
+    if (pos == m_size - 1)
+        pop_front();
 
-    Node<T> *begin = this->head;
+    Ptr begin = this->head;
     // This loop sets 'begin' to the elemnt before the one we need to erase
     while (pos-- > 1)
         begin = begin->next;
 
     // This needs to be erased
-    Node<T> *temp = begin->next;
+    Ptr temp = begin->next;
     begin->next = begin->next->next;
     delete temp;
     m_size--;
@@ -154,14 +190,14 @@ const T &LinkedList<T>::get(unsigned pos) const
     if (pos == 0)
         return head->key;
 
-    Node<T> *begin = head;
+    Ptr begin = head;
     while (pos-- != 0)
         begin = begin->next;
     return begin->key;
 }
 
 template <typename T>
-T &LinkedList<T>::top()
+T &LinkedList<T>::back()
 {
     if (head)
         return head->key;
@@ -169,11 +205,27 @@ T &LinkedList<T>::top()
 }
 
 template <typename T>
-const T &LinkedList<T>::top() const
+const T &LinkedList<T>::back() const
 {
     if (head)
         return head->key;
-    throw std::out_of_range("List is empty");
+    throw std::out_of_range("LL::List is empty.");
+}
+
+template <typename T>
+T &LinkedList<T>::front()
+{
+    if (tail)
+        return tail->key;
+    throw std::out_of_range("LL::List is empty.");
+}
+
+template <typename T>
+const T &LinkedList<T>::front() const
+{
+    if (tail)
+        return tail->key;
+    throw std::out_of_range("LL::List is empty.");
 }
 
 template <typename T>
@@ -183,21 +235,41 @@ std::size_t LinkedList<T>::size() const
 }
 
 template <typename T>
+bool LinkedList<T>::empty() const
+{
+    return (size == 0);
+}
+
+template <typename T>
 void LinkedList<T>::clear()
 {
     while (head)
     {
-        Node<T> *temp = head->next;
+        Ptr temp = head->next;
         delete head;
         head = temp;
     }
+    tail = nullptr;
+    head = nullptr;
     m_size = 0;
 }
 
 template <typename T>
 void LinkedList<T>::sort()
 {
-    //merge_sort(this);
+    // merge_sort(this);
+}
+
+template <typename T>
+typename LinkedList<T>::Iterator LinkedList<T>::begin()
+{
+    return Iterator(head);
+}
+
+template <typename T>
+typename LinkedList<T>::Iterator LinkedList<T>::end()
+{
+    return Iterator(nullptr, tail);
 }
 
 // template <typename T>
@@ -206,11 +278,11 @@ void LinkedList<T>::sort()
 // }
 
 // template <typename T>
-// void LinkedList<T>::split_list(Ptr source, Node<T> **front, Node<T> **back)
+// void LinkedList<T>::split_list(Ptr source, Ptr*front, Ptr *back)
 // {
 // }
 
 // template <typename T>
-// LinkedList<T>::Node<T> *LinkedList<T>::merge_lists(Node<T> *a, Node<T> *b)
+// LinkedList<T>::Ptr LinkedList<T>::merge_lists(Ptr a, Ptr b)
 // {
 // }
