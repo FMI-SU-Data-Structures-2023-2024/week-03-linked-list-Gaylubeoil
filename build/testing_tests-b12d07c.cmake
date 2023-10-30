@@ -1,7 +1,0 @@
-add_test( [==[LinkedList adding elements]==] /home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build/testing [==[LinkedList adding elements]==]  )
-set_tests_properties( [==[LinkedList adding elements]==] PROPERTIES WORKING_DIRECTORY /home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build)
-add_test( [==[LinkedList getting elements]==] /home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build/testing [==[LinkedList getting elements]==]  )
-set_tests_properties( [==[LinkedList getting elements]==] PROPERTIES WORKING_DIRECTORY /home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build)
-add_test( [==[LinkedList removing elements]==] /home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build/testing [==[LinkedList removing elements]==]  )
-set_tests_properties( [==[LinkedList removing elements]==] PROPERTIES WORKING_DIRECTORY /home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build)
-set( testing_TESTS [==[LinkedList adding elements]==] [==[LinkedList getting elements]==] [==[LinkedList removing elements]==])
