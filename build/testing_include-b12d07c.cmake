@@ -1,0 +1,5 @@
+if(EXISTS "/home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build/testing_tests-b12d07c.cmake")
+  include("/home/gaylube/Desktop/week-03-linked-list-Gaylubeoil/build/testing_tests-b12d07c.cmake")
+else()
+  add_test(testing_NOT_BUILT-b12d07c testing_NOT_BUILT-b12d07c)
+endif()

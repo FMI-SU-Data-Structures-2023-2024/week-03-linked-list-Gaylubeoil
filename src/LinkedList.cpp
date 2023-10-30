@@ -1,55 +1,76 @@
-#include <cstddef>
+#if !defined(LINKED_LIST_H)
+#define LINKED_LIST_H
 
-template <class T>
-class LinkedList {
+#include <cstddef>
+#include <stdexcept>
+#include <initializer_list>
+
+template <typename T>
+class LinkedList
+{
+private:
+    template <typename G>
+    struct Node
+    {
+                        Node(G key) : key(key), next(nullptr){};
+                        G key;
+                        Node<G> *next;
+    };
+typedef Node<T>*        Ptr;
+
+public:
+                        LinkedList();
+                        LinkedList(const LinkedList<T> &rhs);
+                        LinkedList(std::initializer_list<T> list);
+                        ~LinkedList();
+
+    bool                operator==(const LinkedList<T> &rhs) const;
+
+    LinkedList<T> &     operator=(const LinkedList<T> &rhs);
+    void                push(const T& a);
+    void                push_at(const T &a, std::size_t index = 0);
+
+    void                erase(std::size_t pos);
+    const T &           get(unsigned pos) const;
+
+    T &                 top();
+    const T&            top() const;
+
+    std::size_t         size() const;
+    void                sort();
+
+    struct Iterator
+    {
+                        Iterator() : current(nullptr){};
+                        Iterator(Ptr current) : current(current){};
+        friend bool     operator==(const Iterator &a, const Iterator &b)
+        {
+            return a.ptr == b.ptr; 
+        }
+        friend bool     operator!=(const Iterator &a, const Iterator &b)
+        {
+            return !(a == b);
+        }
+
+        T &             operator*() const {}
+        Iterator &      operator++() {}
+        Iterator        operator++(int) {}
+
     private:
-        template <class G>
-        struct Node {
-            G key;
-            Node<G>* next;
-            Node(G key) : key(key), next(nullptr){};
-        };
-        Node<T>* front;
-        size_t size;
-    public:
-        LinkedList() {
-        };
-        ~LinkedList() {
-        };
-        LinkedList(const LinkedList<T>& other) {
-        };
-        bool operator==(const LinkedList<T>& other) const {
-        }
-        LinkedList<T>& operator=(const LinkedList<T>& other) {
-        }
-        void insertAtPos(T a, std::size_t pos = 0) {
-        }
-        void removeAtPos(std::size_t pos) {
-        }
-        const T& getElementAtPos(unsigned pos) {
-        }
-        T& top() const {
-        }
-		std::size_t getSize() {
-            return -1;
-		}
-        void sort() { // sort based on operator <
-        }
-		struct Iterator { // can this be also class?
-			Iterator() : current(nullptr) {};
-			Iterator(Node<T>* _current) : current(_current){};
-			friend bool operator==(const Iterator& a, const Iterator& b) {
-				return a.current == b.current;
-			}
-			friend bool operator!=(const Iterator& a, const Iterator& b) {
-				return a.current != b.current;
-			}
-			T& operator*() const {}
-			Iterator& operator++() {}
-			Iterator operator++(int) {}
-		private:
-			Node<T>* current;
-		};
-		Iterator begin() {return Iterator();}
-		Iterator end() {return Iterator();} // is there a way to know this value?
+        Ptr             current;
+    };
+
+    Iterator            begin() { return Iterator(); }
+    Iterator            end() { return Iterator(); }
+
+private:
+    void                clear();
+
+private:
+    Ptr                 head;
+    std::size_t         m_size;
 };
+
+#include "LinkedList.inl"
+
+#endif // LINKED_LIST_H
