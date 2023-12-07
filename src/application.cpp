@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <list>
 #include "LinkedList.cpp"
 
 template <typename T>
@@ -18,28 +19,27 @@ void print_iteratively(LinkedList<T> &list)
 	std::cout << std::endl;
 }
 
-void a()
-{
-	std::cout << std::endl;
-}
-
+#include <list>
 int main()
 {
-	LinkedList<int> list;
-	list.push(1);
-	list.push(3);
-	list.push(4);
-	list.push_at(2, 1);
-	list.push_at(0, 0);
-	list.push(5); // 0,1,2,3,4,5; size = 6
+	LinkedList<int> mlist{1, 2, 3, 4, 5, 6, 7, 8, 9};
 
-	// print(list);
-	// std::cout << std::endl;
-	// print_iteratively(list);
-
-	list.pop_front();
-
-	std::cout << list.front(); // tail
+	mlist.reverse();
+	print_iteratively(mlist);
+	mlist.remove(1);
+	print_iteratively(mlist);
+	mlist.erase(1);
+	print_iteratively(mlist);
+	mlist.pop_back();
+	print_iteratively(mlist);
+	mlist.pop_front();
+	print_iteratively(mlist);
+	mlist.remove_if([](int val)
+					{ return (val == 5); });
+	print_iteratively(mlist);
+	mlist.push(99);
+	print_iteratively(mlist);
+	std::cout << mlist.size() << std::endl;
 
 	return 0;
 }

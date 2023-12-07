@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <stdexcept>
 #include <initializer_list>
+#include <functional>
 
 template <typename T>
 class LinkedList
@@ -16,11 +17,12 @@ private:
                         G key;
                         Node<G> *next;
     };
-typedef Node<T>*        Ptr;
+using Ptr               = Node<T>*;
 
 public:
-                        LinkedList();
+                        LinkedList() noexcept;
                         LinkedList(const LinkedList<T> &rhs);
+                        LinkedList(LinkedList&& rhs) noexcept;
                         LinkedList(std::initializer_list<T> list);
                         ~LinkedList();
 
@@ -34,6 +36,7 @@ public:
 
     void                erase(std::size_t pos);
     const T &           get(unsigned pos) const;
+    void                clear() noexcept;
 
     T &                 front();
     const T&            front() const;
@@ -41,34 +44,51 @@ public:
     T &                 back();
     const T&            back() const;
 
-    std::size_t         size() const;
-    bool                empty() const;
+    std::size_t         size() const noexcept;
+    bool                empty() const noexcept;
     void                sort();
+    void                reverse() noexcept;
+    void                remove(const T& val);
+    void                remove_if(std::function<bool(const T&)> condition);
+    
 
     struct Iterator
     {
     public:
-                        Iterator() : current(nullptr), prev(nullptr) {};
-                        Iterator(Ptr current) : current(current), prev(nullptr) {};
-                        Iterator(Ptr current, Ptr prev) : current(current), prev(prev) {};
+                        Iterator() : current(nullptr) {};
+                        Iterator(Ptr current) : current(current) {};
         bool            operator==(const Iterator &rhs);
         bool            operator!=(const Iterator &rhs);
-
-        //Iterator&       prev();
 
         T &             operator*() const;
         Iterator &      operator++();
         Iterator        operator++(int);
+
     private:
         Ptr             current;
-        Ptr             prev;
     };
 
-    Iterator            begin();
-    Iterator            end();
+    struct cIterator{
+                        cIterator() : current(nullptr) {};
+                        cIterator(Ptr current) : current(current) {};
 
-private:
-    void                clear();
+        bool            operator==(const cIterator& rhs);
+        bool            operator!=(const cIterator& rhs);
+
+        const T &       operator*() const;
+        cIterator &     operator++();
+        cIterator       operator++(int);
+
+    private:
+        Ptr             current;
+    };
+
+    Iterator            begin() noexcept;
+    cIterator           begin() const noexcept;
+
+    Iterator            end() noexcept;
+    cIterator           end() const noexcept;
+
 
 private:
     Ptr                 head;

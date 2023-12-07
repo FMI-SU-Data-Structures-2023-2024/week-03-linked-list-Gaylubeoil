@@ -1,7 +1,7 @@
 #include "LinkedList.cpp"
 
 template <typename T>
-LinkedList<T>::LinkedList()
+LinkedList<T>::LinkedList() noexcept
     : head(nullptr), tail(nullptr), m_size(0){};
 
 template <typename T>
@@ -25,8 +25,30 @@ LinkedList<T>::LinkedList(const LinkedList<T> &rhs)
 };
 
 template <typename T>
-LinkedList<T>::LinkedList(std::initializer_list<T> list)
+LinkedList<T>::LinkedList(LinkedList<T> &&rhs) noexcept
+    : head(rhs.head), tail(rhs.tail), m_size(rhs.m_size)
 {
+    // Reset the other object.
+    rhs.head = nullptr;
+    rhs.tail = nullptr;
+    rhs.m_size = 0;
+}
+
+template <typename T>
+LinkedList<T>::LinkedList(std::initializer_list<T> list)
+    : head(nullptr), tail(nullptr), m_size(list.size())
+{
+    if (m_size == 0)
+        return;
+
+    head = new Node(*list.begin());
+    Ptr current = head;
+    for (auto it = list.begin() + 1; it != list.end(); ++it)
+    {
+        current->next = new Node(*it);
+        current = current->next;
+    }
+    tail = current;
 }
 
 template <typename T>
@@ -40,6 +62,9 @@ bool LinkedList<T>::operator==(const LinkedList<T> &rhs) const
 {
     if (m_size != rhs.m_size)
         return false;
+
+    if (m_size == 0)
+        return true;
 
     Ptr current = this->head, *other = rhs.head;
     while (current->next)
@@ -132,13 +157,17 @@ template <typename T>
 void LinkedList<T>::pop_front()
 {
     if (head == tail)
+    {
         pop_back();
+        return;
+    }
     Ptr begin = head;
     while (begin->next != tail)
         begin = begin->next;
     delete tail;
     tail = begin;
     tail->next = nullptr;
+    m_size--;
 }
 
 template <typename T>
@@ -149,6 +178,7 @@ void LinkedList<T>::pop_back()
         delete head;
         tail = nullptr;
         head = nullptr;
+        m_size--;
         return;
     }
     Ptr temp = head;
@@ -199,49 +229,49 @@ const T &LinkedList<T>::get(unsigned pos) const
 template <typename T>
 T &LinkedList<T>::back()
 {
-    if (head)
-        return head->key;
+    if (tail)
+        return tail->key;
     throw std::out_of_range("List is empty");
 }
 
 template <typename T>
 const T &LinkedList<T>::back() const
 {
-    if (head)
-        return head->key;
+    if (tail)
+        return tail->key;
     throw std::out_of_range("LL::List is empty.");
 }
 
 template <typename T>
 T &LinkedList<T>::front()
 {
-    if (tail)
-        return tail->key;
+    if (head)
+        return head->key;
     throw std::out_of_range("LL::List is empty.");
 }
 
 template <typename T>
 const T &LinkedList<T>::front() const
 {
-    if (tail)
-        return tail->key;
+    if (head)
+        return head->key;
     throw std::out_of_range("LL::List is empty.");
 }
 
 template <typename T>
-std::size_t LinkedList<T>::size() const
+std::size_t LinkedList<T>::size() const noexcept
 {
     return m_size;
 }
 
 template <typename T>
-bool LinkedList<T>::empty() const
+bool LinkedList<T>::empty() const noexcept
 {
     return (size == 0);
 }
 
 template <typename T>
-void LinkedList<T>::clear()
+void LinkedList<T>::clear() noexcept
 {
     while (head)
     {
@@ -261,16 +291,107 @@ void LinkedList<T>::sort()
 }
 
 template <typename T>
-typename LinkedList<T>::Iterator LinkedList<T>::begin()
+void LinkedList<T>::reverse() noexcept
+{
+    Ptr prev = nullptr;
+    Ptr current = head;
+    Ptr next = nullptr;
+    while (current)
+    {
+        next = current->next;
+        current->next = prev;
+
+        prev = current;
+        current = next;
+    }
+    tail = head;
+    head = prev;
+}
+
+template <typename T>
+void LinkedList<T>::remove(const T &val)
+{
+    Ptr current = head;
+    Ptr prev = nullptr;
+
+    while (current)
+    {
+        if (current->key == val)
+        {
+            if (prev == nullptr)
+                head = current->next;
+            else
+                prev->next = current->next;
+
+            if (current == tail)
+                tail = prev;
+
+            delete current;
+            current = nullptr;
+            m_size--;
+        }
+        else
+        {
+            prev = current;
+            current = current->next;
+        }
+    }
+}
+
+template <typename T>
+void LinkedList<T>::remove_if(std::function<bool(const T &)> condition)
+{
+    Ptr current = head;
+    Ptr prev = nullptr;
+
+    while (current)
+    {
+        if (condition(current->key))
+        {
+            if (!prev)
+                head = current->next;
+            else
+                prev->next = current->next;
+
+            if (current == tail)
+                tail = prev;
+
+            delete current;
+            current = nullptr;
+            m_size--;
+        }
+        else
+        {
+            prev = current;
+            current = current->next;
+        }
+    }
+}
+
+template <typename T>
+typename LinkedList<T>::Iterator LinkedList<T>::begin() noexcept
 {
     return Iterator(head);
 }
 
 template <typename T>
-typename LinkedList<T>::Iterator LinkedList<T>::end()
+typename LinkedList<T>::cIterator LinkedList<T>::begin() const noexcept
 {
-    return Iterator(nullptr, tail);
+    return cIterator(head);
 }
+
+template <typename T>
+typename LinkedList<T>::Iterator LinkedList<T>::end() noexcept
+{
+    return Iterator(nullptr);
+}
+
+template <typename T>
+typename LinkedList<T>::cIterator LinkedList<T>::end() const noexcept
+{
+    return cIterator(nullptr);
+}
+
 
 // template <typename T>
 // void LinkedList<T>::merge_sort(LinkedList<T> *main)
