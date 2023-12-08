@@ -13,18 +13,19 @@ TEST_CASE("LinkedList adding elements")
 
 	SECTION("adding element should increase the size")
 	{
-		list.push_at(1);
+		list.push(1);
 		REQUIRE(list.size() == 1);
 	}
 
 	SECTION("adding element should increase the size")
 	{
-		list.push_at(1);
+		list.push(1);
 		CHECK(list.size() == 1);
-		list.push_at(2);
+		list.push(2);
 		CHECK(list.size() == 2);
 		list.push_at(12, 1);
 		CHECK(list.get(1) == 12);
+		CHECK(list.size() == 3);
 	}
 	SECTION("Adding of element out of range should throw out of range error")
 	{
@@ -49,12 +50,14 @@ TEST_CASE("LinkedList getting elements")
 	}
 	SECTION("adding element should increase the size")
 	{
+		CHECK(list.front() == 1000);
 		CHECK(list.get(0) == 1000);
 		CHECK(list.get(1) == 15);
 		CHECK(list.get(2) == 16);
 		CHECK(list.get(3) == 100);
 		CHECK(list.get(4) == 10);
 		CHECK(list.get(5) == 1);
+		CHECK(list.back() == 1);
 	}
 }
 
@@ -80,4 +83,32 @@ TEST_CASE("LinkedList removing elements")
 		CHECK(list.get(4) == 1);
 	}
 	// Add operator =, iter... for homework...
+}
+
+TEST_CASE("List Sorting")
+{
+	LinkedList<int> list = {4, 3, 2, 1, 0};
+	SECTION("sorting the list")
+	{
+		list.sort();
+		CHECK(list.get(0) == 0);
+		CHECK(list.get(1) == 1);
+		CHECK(list.get(2) == 2);
+		CHECK(list.get(3) == 3);
+		CHECK(list.get(4) == 4);
+	}
+
+	SECTION("List maintains size") {
+		CHECK(list.size() == 5);
+	}
+}
+
+TEST_CASE("List Reversing") {
+	LinkedList<int> list = {0,1,2,3};
+	list.reverse();
+	CHECK(list.front() == list.get(0));
+	CHECK(list.get(1) == 2);
+	CHECK(list.get(2) == 1);
+	CHECK(list.back() == list.get(3));
+	CHECK(list.size() == 4);
 }

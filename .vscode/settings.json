@@ -63,6 +63,7 @@
     "thread": "cpp",
     "typeinfo": "cpp",
     "variant": "cpp",
-    "list": "cpp"
+    "list": "cpp",
+    "xutility": "cpp"
   }
 }

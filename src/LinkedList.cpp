@@ -32,7 +32,7 @@ public:
     void                push(const T& a);
     void                pop_front();
     void                pop_back();
-    void                push_at(const T &a, std::size_t index = 0);
+    void                push_at(const T &a, std::size_t index);
 
     void                erase(std::size_t pos);
     const T &           get(unsigned pos) const;
@@ -48,6 +48,7 @@ public:
     bool                empty() const noexcept;
     void                sort();
     void                reverse() noexcept;
+    void                merge(const LinkedList<T>& other);
     void                remove(const T& val);
     void                remove_if(std::function<bool(const T&)> condition);
     
@@ -69,6 +70,7 @@ public:
     };
 
     struct cIterator{
+        public:
                         cIterator() : current(nullptr) {};
                         cIterator(Ptr current) : current(current) {};
 
@@ -89,6 +91,11 @@ public:
     Iterator            end() noexcept;
     cIterator           end() const noexcept;
 
+private:
+using list = LinkedList<T>;
+    void                merge_sort(Ptr* source);
+    void                split(Ptr source, Ptr* front, Ptr* back);
+    Ptr                 m_merge(Ptr left, Ptr right);
 
 private:
     Ptr                 head;

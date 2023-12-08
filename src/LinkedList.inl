@@ -128,28 +128,26 @@ void LinkedList<T>::push_at(const T &a, std::size_t index)
 {
     if (index > this->m_size) // Too large index
         throw std::out_of_range("LL::Out of range.\n");
-    if (index == m_size - 1)
-        push(a);
     if (index == 0)
-    { // index is 0
-        Ptr temp = new Node<T>(a);
-        temp->next = head;
-        head = temp;
+    {
+        Ptr new_head = new Node<T>(a);
+        new_head->next = head;
+        head = new_head;
+        if (m_size == 0)
+            tail = head;
         m_size++;
         return;
     }
-
-    Ptr begin = head;
+    Ptr current = head;
     while (index > 1)
     {
-        begin = begin->next;
+        current = current->next;
         index--;
     }
-    Ptr temp = begin->next;
-    begin->next = new Node<T>(a);
-    begin = begin->next;
-    begin->next = temp;
-    tail = temp;
+    Ptr temp = current->next;
+    current->next = new Node<T>(a);
+    current = current->next;
+    current->next = temp;
     m_size++;
 }
 
@@ -287,7 +285,20 @@ void LinkedList<T>::clear() noexcept
 template <typename T>
 void LinkedList<T>::sort()
 {
-    // merge_sort(this);
+    // If the list has 0 or 1 elements, it's already sorted
+    if (m_size == 0 || m_size == 1)
+        return;
+
+    merge_sort(&head);
+
+    //Fix size and tail
+    m_size = 1;
+    Ptr current = head;
+    while (current->next) {
+        m_size++;
+        current = current->next;
+    }
+    tail = current;
 }
 
 template <typename T>
@@ -306,6 +317,17 @@ void LinkedList<T>::reverse() noexcept
     }
     tail = head;
     head = prev;
+}
+
+template <typename T>
+void LinkedList<T>::merge(const LinkedList<T> &other)
+{
+    for (auto i : other)
+    {
+        tail->next = new Node(i);
+        tail = tail->next;
+    }
+    m_size += other.m_size;
 }
 
 template <typename T>
@@ -392,18 +414,70 @@ typename LinkedList<T>::cIterator LinkedList<T>::end() const noexcept
     return cIterator(nullptr);
 }
 
+template <typename T>
+void LinkedList<T>::merge_sort(Ptr *source)
+{
+    Ptr head_ref = *source;
+    Ptr left, right;
 
-// template <typename T>
-// void LinkedList<T>::merge_sort(LinkedList<T> *main)
-// {
-// }
+    // If the list has <= 2 elements, break recursion
+    if (!head_ref || !head_ref->next)
+        return;
+    split(head_ref, &left, &right);
 
-// template <typename T>
-// void LinkedList<T>::split_list(Ptr source, Ptr*front, Ptr *back)
-// {
-// }
+    merge_sort(&left);
+    merge_sort(&right);
 
-// template <typename T>
-// LinkedList<T>::Ptr LinkedList<T>::merge_lists(Ptr a, Ptr b)
-// {
-// }
+    *source = m_merge(left, right);
+}
+
+template <typename T>
+void LinkedList<T>::split(Ptr source, Ptr *front, Ptr *back)
+{
+    if (source == nullptr || source->next == nullptr)
+    {
+        *front = source;
+        *back = nullptr;
+        return;
+    }
+
+    Ptr slow = source;
+    Ptr fast = source->next;
+
+    while (fast)
+    {
+        fast = fast->next;
+        if (fast)
+        {
+            slow = slow->next;
+            fast = fast->next;
+        }
+    }
+
+    *front = source;
+    *back = slow->next;
+    slow->next = nullptr;
+}
+
+template <typename T>
+LinkedList<T>::Node<T> *LinkedList<T>::m_merge(Ptr left, Ptr right)
+{
+    Ptr result = nullptr;
+    if (!left)
+        return right;
+    if (!right)
+        return left;
+
+    if (left->key <= right->key)
+    {
+        result = left;
+        result->next = m_merge(left->next, right);
+    }
+    else
+    {
+        result = right;
+        result->next = m_merge(left, right->next);
+    }
+
+    return result;
+}

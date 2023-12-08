@@ -19,27 +19,14 @@ void print_iteratively(LinkedList<T> &list)
 	std::cout << std::endl;
 }
 
-#include <list>
+using ilist = LinkedList<int>;
 int main()
 {
-	LinkedList<int> mlist{1, 2, 3, 4, 5, 6, 7, 8, 9};
+	ilist list = {4, 3, 2, 1, 0};
+	list.sort();
+	print_iteratively(list);
 
-	mlist.reverse();
-	print_iteratively(mlist);
-	mlist.remove(1);
-	print_iteratively(mlist);
-	mlist.erase(1);
-	print_iteratively(mlist);
-	mlist.pop_back();
-	print_iteratively(mlist);
-	mlist.pop_front();
-	print_iteratively(mlist);
-	mlist.remove_if([](int val)
-					{ return (val == 5); });
-	print_iteratively(mlist);
-	mlist.push(99);
-	print_iteratively(mlist);
-	std::cout << mlist.size() << std::endl;
+	std::cout << list.front() << ' ' << list.back() <<std::endl;
 
 	return 0;
 }
