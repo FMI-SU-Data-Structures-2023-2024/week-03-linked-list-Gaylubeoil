@@ -6,3 +6,6 @@ out
 .idea
 cmake-build-debug
 .src
+build/
+.vscode/
+

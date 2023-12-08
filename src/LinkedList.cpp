@@ -1,55 +1,109 @@
-#include <cstddef>
+#if !defined(LINKED_LIST_H)
+#define LINKED_LIST_H
 
-template <class T>
-class LinkedList {
-    private:
-        template <class G>
-        struct Node {
-            G key;
-            Node<G>* next;
-            Node(G key) : key(key), next(nullptr){};
-        };
-        Node<T>* front;
-        size_t size;
+#include <cstddef>
+#include <stdexcept>
+#include <initializer_list>
+#include <functional>
+
+template <typename T>
+class LinkedList
+{
+private:
+    template<typename G>
+    struct Node
+    {
+                        Node(G key) : key(key), next(nullptr){};
+                        G key;
+                        Node<G> *next;
+    };
+using Ptr               = Node<T>*;
+
+public:
+                        LinkedList() noexcept;
+                        LinkedList(const LinkedList<T> &rhs);
+                        LinkedList(LinkedList&& rhs) noexcept;
+                        LinkedList(std::initializer_list<T> list);
+                        ~LinkedList();
+
+    bool                operator==(const LinkedList<T> &rhs) const;
+
+    LinkedList<T> &     operator=(const LinkedList<T> &rhs);
+    void                push(const T& a);
+    void                pop_front();
+    void                pop_back();
+    void                push_at(const T &a, std::size_t index);
+
+    void                erase(std::size_t pos);
+    const T &           get(unsigned pos) const;
+    void                clear() noexcept;
+
+    T &                 front();
+    const T&            front() const;
+
+    T &                 back();
+    const T&            back() const;
+
+    std::size_t         size() const noexcept;
+    bool                empty() const noexcept;
+    void                sort();
+    void                reverse() noexcept;
+    void                merge(const LinkedList<T>& other);
+    void                remove(const T& val);
+    void                remove_if(std::function<bool(const T&)> condition);
+    
+
+    struct Iterator
+    {
     public:
-        LinkedList() {
-        };
-        ~LinkedList() {
-        };
-        LinkedList(const LinkedList<T>& other) {
-        };
-        bool operator==(const LinkedList<T>& other) const {
-        }
-        LinkedList<T>& operator=(const LinkedList<T>& other) {
-        }
-        void insertAtPos(T a, std::size_t pos = 0) {
-        }
-        void removeAtPos(std::size_t pos) {
-        }
-        const T& getElementAtPos(unsigned pos) {
-        }
-        T& top() const {
-        }
-		std::size_t getSize() {
-            return -1;
-		}
-        void sort() { // sort based on operator <
-        }
-		struct Iterator { // can this be also class?
-			Iterator() : current(nullptr) {};
-			Iterator(Node<T>* _current) : current(_current){};
-			friend bool operator==(const Iterator& a, const Iterator& b) {
-				return a.current == b.current;
-			}
-			friend bool operator!=(const Iterator& a, const Iterator& b) {
-				return a.current != b.current;
-			}
-			T& operator*() const {}
-			Iterator& operator++() {}
-			Iterator operator++(int) {}
-		private:
-			Node<T>* current;
-		};
-		Iterator begin() {return Iterator();}
-		Iterator end() {return Iterator();} // is there a way to know this value?
+                        Iterator() : current(nullptr) {};
+                        Iterator(Ptr current) : current(current) {};
+        bool            operator==(const Iterator &rhs);
+        bool            operator!=(const Iterator &rhs);
+
+        T &             operator*() const;
+        Iterator &      operator++();
+        Iterator        operator++(int);
+
+    private:
+        Ptr             current;
+    };
+
+    struct cIterator{
+        public:
+                        cIterator() : current(nullptr) {};
+                        cIterator(Ptr current) : current(current) {};
+
+        bool            operator==(const cIterator& rhs);
+        bool            operator!=(const cIterator& rhs);
+
+        const T &       operator*() const;
+        cIterator &     operator++();
+        cIterator       operator++(int);
+
+    private:
+        Ptr             current;
+    };
+
+    Iterator            begin() noexcept;
+    cIterator           begin() const noexcept;
+
+    Iterator            end() noexcept;
+    cIterator           end() const noexcept;
+
+private:
+using list = LinkedList<T>;
+    void                merge_sort(Ptr* source);
+    void                split(Ptr source, Ptr* front, Ptr* back);
+    Ptr                 m_merge(Ptr left, Ptr right);
+
+private:
+    Ptr                 head;
+    Ptr                 tail;
+    std::size_t         m_size;
 };
+
+#include "LinkedList.inl"
+#include "Iterator.inl"
+
+#endif // LINKED_LIST_H
